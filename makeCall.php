@@ -28,12 +28,16 @@ if (!isset($to) || empty($to)) {
   $dial = $response->dial(
     '',
     array(
-       'callerId' => $callerId
+       'callerId' => $callerId,
     ));
   $dial
-  ->setAnswerOnBridge(true)
-  ->setAction("https://169b-122-161-69-248.ngrok.io/dialStatus.php")
-  ->setMethod('POST')
-  ->client($to);
+    ->setAnswerOnBridge(true)
+    ->setAction('https://'.$_SERVER['HTTP_HOST'].'/dialStatus.php')
+    ->setMethod('POST')
+    ->client($to, [
+        'statusCallbackEvent' => 'queued initiated ringing answered completed',
+        'statusCallback' => 'https://'.$_SERVER['HTTP_HOST'].'/CallStatus.php',
+        'statusCallbackMethod' => 'POST'
+    ]);
 }
 print $response;
