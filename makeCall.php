@@ -22,6 +22,7 @@ fwrite($file,json_encode($_POST));
 fwrite($file,"\n");
 fclose($file);
 $response = new VoiceResponse;
+$customParams = isset($_POST["customParams"]) ? $_POST["customParams"] : "";
 if (!isset($to) || empty($to)) {
   $response->say('Please dial to a valid client.');
 } else {
@@ -30,14 +31,20 @@ if (!isset($to) || empty($to)) {
     array(
        'callerId' => $callerId,
     ));
-  $dial
-    ->setAnswerOnBridge(true)
-    ->setAction('https://'.$_SERVER['HTTP_HOST'].'/dialStatus.php')
-    ->setMethod('POST')
-    ->client($to, [
-        'statusCallbackEvent' => 'queued initiated ringing answered completed',
-        'statusCallback' => 'https://'.$_SERVER['HTTP_HOST'].'/CallStatus.php',
-        'statusCallbackMethod' => 'POST'
-    ]);
+    $client = $dial
+      ->setAnswerOnBridge(true) // for call synchronization of events between caller and receiver
+      ->setAction('https://'.$_SERVER['HTTP_HOST'].'/dialStatus.php')
+      ->setMethod('POST')
+      ->client($to, [
+          'statusCallbackEvent' => 'initiated ringing answered completed',
+          'statusCallback' => 'https://'.$_SERVER['HTTP_HOST'].'/CallStatus.php',
+          'statusCallbackMethod' => 'POST'
+      ])
+      ->parameter(['name' => 'customParams', 'value' => $customParams]);
+      /*
+        For POC only, we are not doing any validation on customeParams, it makes more sense to receive stringified json from the caller
+        and extract all the required params, do sanitizations and validations and then communicate only the needed params 
+        separately to the receiver.
+      */
 }
 print $response;
