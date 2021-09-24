@@ -8,8 +8,8 @@ use Twilio\Jwt\AccessToken;
 use Twilio\Jwt\Grants\VoiceGrant;
 
 // Use identity and room from query string if provided
-$identity = isset($_GET["identity"]) ? $_GET["identity"] : NULL;
-$isIos = isset($_GET["isIos"]) ? $_GET["isIos"] : false;
+$identity = isset($_SERVER["HTTP_IDENTITY"]) ? $_SERVER["HTTP_IDENTITY"] : NULL;
+$app_type = isset($_SERVER["HTTP_APP_TYPE"]) ? $_GET["HTTP_APP_TYPE"] : NULL;
 if (!isset($identity) || empty($identity)) {
   $identity = isset($_POST["identity"]) ? $_POST["identity"] : "alice";
 }
@@ -29,4 +29,6 @@ $grant->setIncomingAllow(true);
 $grant->setPushCredentialSid($pushCredentials);
 $token->addGrant($grant);
 
-echo $token->toJWT();
+echo json_encode([
+  "access_token" => $token->toJWT()
+]);
