@@ -22,7 +22,7 @@ $token = new AccessToken($ACCOUNT_SID,
 );
 
 // Grant access to Video
-$pushCredentials = $isIos ? $APPLE_PUSH_CREDENTIAL_SID : $PUSH_CREDENTIAL_SID;
+$pushCredentials = $app_type == 1 ? $APPLE_PUSH_CREDENTIAL_SID : $PUSH_CREDENTIAL_SID;
 $grant = new VoiceGrant();
 $grant->setOutgoingApplicationSid($APP_SID);
 $grant->setIncomingAllow(true);
